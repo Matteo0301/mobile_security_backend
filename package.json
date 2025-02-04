@@ -6,11 +6,25 @@
   "repository": "https://github.com/render-examples/express-hello-world",
   "author": "Render Developers",
   "license": "MIT",
-  "private": false,
   "scripts": {
-    "start": "node app.js"
+    "start": "node dist/app.js",
+    "build": "tsc"
   },
   "dependencies": {
-    "express": "^5.0.0"
+    "bcrypt": "^5.1.1",
+    "express": "^4.21.2",
+    "mongoose": "^8.9.6"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/body-parser": "^1.19.5",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "@types/jsonwebtoken": "^9.0.8",
+    "@types/node": "^22.13.0",
+    "body-parser": "^1.20.3",
+    "cors": "^2.8.5",
+    "jsonwebtoken": "^9.0.2",
+    "typescript": "^5.7.3"
   }
 }
