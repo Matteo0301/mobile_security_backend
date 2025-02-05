@@ -16,8 +16,6 @@ app.use(bodyParser.urlencoded({
 
 app.use(bodyParser.json());
 
-//app.get("/", (req, res) => res.type('html').send(html));
-
 async function checkValidationErrors(req: Request, res: Response, next: NextFunction) {
   const result = validationResult(req)
   if (!result.isEmpty()) {
@@ -81,7 +79,7 @@ app.get('/tasks', [
 app.post('/tasks', [
   body('title').notEmpty().isString(),
   body('description').notEmpty().isString(),
-  //checkValidationErrors,
+  checkValidationErrors,
   authenticateToken,
 ], async (req: Request, res: Response) => {
   addTask(req.body.title, req.body.description, req.id)
@@ -90,7 +88,7 @@ app.post('/tasks', [
 
 app.delete('/task/:id', [
   param('id').notEmpty().isString(),
-  //checkValidationErrors,
+  checkValidationErrors,
   authenticateToken,
 ], async (req: Request, res: Response) => {
   if (!(await checkTask(req.params.id))) {
@@ -104,7 +102,7 @@ app.delete('/task/:id', [
 app.patch('/task/:id', [
   param('id').notEmpty().isString(),
   body('completed').isBoolean(),
-  //checkValidationErrors,
+  checkValidationErrors,
   authenticateToken,
 ], async (req: Request, res: Response) => {
   const check = !(await checkTask(req.params.id))
