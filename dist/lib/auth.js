@@ -21,6 +21,7 @@ function authenticateUser(req, res, next) {
         if (user && user.password !== undefined && user.password !== null) {
             if ((0, bcrypt_1.compareSync)(request_password, user.password)) {
                 req.user = request_user;
+                req.id = user._id.toString();
                 next();
             }
             else {

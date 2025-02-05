@@ -12,20 +12,21 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.User = exports.db = void 0;
+exports.db = void 0;
 exports.connect = connect;
 exports.close = close;
 exports.addUser = addUser;
 exports.getUser = getUser;
-exports.getUsers = getUsers;
-exports.updateUser = updateUser;
-exports.deleteUser = deleteUser;
 exports.clear = clear;
 exports.generateHash = generateHash;
+exports.getTasks = getTasks;
+exports.addTask = addTask;
+exports.checkTask = checkTask;
+exports.deleteTask = deleteTask;
+exports.updateTask = updateTask;
 const mongoose_1 = require("mongoose");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const schemas_1 = require("./schemas");
-Object.defineProperty(exports, "User", { enumerable: true, get: function () { return schemas_1.User; } });
 let db;
 function connect(CONNECTION_STRING) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -56,42 +57,49 @@ function generateHash(password) {
     }
     return bcrypt_1.default.hashSync(password, bcrypt_1.default.genSaltSync(salt_rounds));
 }
-function addUser(username, password, admin) {
+function addUser(username, password) {
     return __awaiter(this, void 0, void 0, function* () {
         const hashedPassword = generateHash(password);
         const user = yield getUser(username);
         if (user) {
             return false;
         }
-        yield schemas_1.User.create({ username: username, password: hashedPassword, admin: admin });
+        yield schemas_1.User.create({ username: username, password: hashedPassword });
         return true;
     });
 }
 function getUser(username) {
     return __awaiter(this, void 0, void 0, function* () {
-        const user = yield schemas_1.User.findOne().exec();
-        console.log(user);
+        const user = yield schemas_1.User.findOne({ username: username }).exec();
+        //console.log(user)
         return user;
     });
 }
-function getUsers() {
+function getTasks(id) {
     return __awaiter(this, void 0, void 0, function* () {
-        const u = yield schemas_1.User.find().exec();
-        let users = [];
-        u.forEach((user) => {
-            users.push({ username: user.username, admin: user.admin });
-        });
-        return users;
+        const tasks = yield schemas_1.Task.find({ userId: id }).exec();
+        return tasks;
     });
 }
-function updateUser(username, newName, password, admin) {
+function addTask(title, description, userId) {
     return __awaiter(this, void 0, void 0, function* () {
-        const hashedPassword = generateHash(password);
-        yield schemas_1.User.updateOne({ username: { $eq: username } }, { $set: { username: newName, password: hashedPassword, admin: admin } });
+        schemas_1.Task.create({ title: title, description: description, userId: userId, completed: false });
     });
 }
-function deleteUser(username) {
+function checkTask(id) {
     return __awaiter(this, void 0, void 0, function* () {
-        yield schemas_1.User.deleteOne({ username: { $eq: username } });
+        const task = yield schemas_1.Task.findOne({ _id: id }).exec();
+        console.log(task);
+        return task != null;
+    });
+}
+function deleteTask(id) {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield schemas_1.Task.deleteOne({ _id: id }).exec();
+    });
+}
+function updateTask(id, completed) {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield schemas_1.Task.updateOne({ _id: id }, { completed: completed });
     });
 }

@@ -1,6 +1,7 @@
 import { sign, verify } from 'jsonwebtoken'
 import { Response, NextFunction } from 'express'
 import { Request } from 'express'
+import { getUser } from './mongoose'
 
 let secret = ""
 
@@ -15,34 +16,42 @@ function setSecret(new_secret: string) {
 async function authenticateToken(req: Request, res: Response, next: NextFunction) {
     let token
     const header = req.headers['authorization']
+    console.log(req.headers)
+    console.log('hello')
     if (header && typeof header === 'string') {
         if (header.startsWith('Bearer ')) {
             token = header.split(' ')[1]
         } else {
+            console.log('wring header format')
             res.sendStatus(401)
             return;
         }
 
     } else {
+        console.log('wrong header type')
+        console.log(header)
+        console.log(typeof header)
         res.sendStatus(401)
         return;
     }
 
     if (token == null) {
-        return res.sendStatus(401)
+        console.log('null token')
+        res.sendStatus(401)
+        return;
     }
 
     verify(token, secret, async (err: any, user: any) => {
         if (err) {
-            return res.sendStatus(403)
+            res.status(403).send()
+            return;
         }
 
         // Check if user is in the database
-        /* const db_user = await getUser(user.username)
+        const db_user = await getUser(user.username)
         if (!db_user) {
-            Logger.debug('Authentication failed: ' + user.username + ' is not in the database')
-            return res.sendStatus(403)
-        } */
+            return res.status(403).send()
+        }
 
         req.user = user.username
         req.id = user.id

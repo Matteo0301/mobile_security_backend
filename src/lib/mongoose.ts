@@ -1,6 +1,6 @@
 import { set, connect as db_connect, Types, mongo } from "mongoose"
 import bcrypt from 'bcrypt'
-import { User } from "./schemas"
+import { Task, User } from "./schemas"
 
 let db: any
 
@@ -30,38 +30,44 @@ function generateHash(password: string): string {
     return bcrypt.hashSync(password, bcrypt.genSaltSync(salt_rounds))
 }
 
-async function addUser(username: string, password: string, admin: boolean) {
+async function addUser(username: string, password: string) {
     const hashedPassword = generateHash(password)
     const user = await getUser(username)
     if (user) {
         return false
     }
-    await User.create({ username: username, password: hashedPassword, admin: admin })
+    await User.create({ username: username, password: hashedPassword })
     return true
 }
 
 async function getUser(username: string) {
-    const user = await User.findOne().exec()
-    console.log(user)
+    const user = await User.findOne({ username: username }).exec()
+    //console.log(user)
     return user
 }
 
-async function getUsers() {
-    const u = await User.find().exec()
-    let users: any[] = []
-    u.forEach((user: any) => {
-        users.push({ username: user.username, admin: user.admin })
-    })
-    return users
+
+async function getTasks(id: string) {
+    const tasks = await Task.find({ userId: id }).exec()
+    return tasks
 }
 
-async function updateUser(username: string, newName: string, password: string, admin: boolean) {
-    const hashedPassword = generateHash(password)
-    await User.updateOne({ username: { $eq: username } }, { $set: { username: newName, password: hashedPassword, admin: admin } })
+async function addTask(title: string, description: string, userId: string) {
+    Task.create({ title: title, description: description, userId: userId, completed: false })
 }
 
-async function deleteUser(username: string) {
-    await User.deleteOne({ username: { $eq: username } })
+async function checkTask(id: string) {
+    const task = await Task.findOne({ _id: id }).exec()
+    console.log(task)
+    return task != null
 }
 
-export { connect, close, db, addUser, getUser, getUsers, updateUser, deleteUser, clear, User, generateHash }
+async function deleteTask(id: string) {
+    await Task.deleteOne({ _id: id }).exec()
+}
+
+async function updateTask(id: string, completed: boolean) {
+    await Task.updateOne({ _id: id }, { completed: completed })
+}
+
+export { connect, close, db, addUser, getUser, clear, generateHash, getTasks, addTask, checkTask, deleteTask, updateTask }

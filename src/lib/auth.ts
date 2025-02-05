@@ -2,8 +2,6 @@ import { Request, Response, NextFunction } from 'express'
 import { db, getUser } from './mongoose'
 import { compareSync } from 'bcrypt'
 
-
-
 async function authenticateUser(req: Request, res: Response, next: NextFunction) {
     const request_user = req.params.username
     const request_password = req.params.password
@@ -30,15 +28,5 @@ async function checkTokenMatchesUser(req: Request, res: Response, next: NextFunc
         next()
     }
 }
-/* 
-async function checkValidationErrors(req: Request, res: Response, next: NextFunction) {
-    const result = validationResult(req)
-    if (!result.isEmpty()) {
-        res.status(400).json({ errors: result.array() })
-    }
-    else {
-        next()
-    }
-} */
 
 export { authenticateUser, checkTokenMatchesUser, /* checkValidationErrors */ }

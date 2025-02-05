@@ -11,6 +11,14 @@ const UserSchema = new Schema({
     }
 })
 
-const User = model('User', UserSchema, 'users')
+const TaskSchema = new Schema({
+    title: String,
+    description: String,
+    userId: String,
+    completed: Boolean
+})
 
-export { User }
+const User = model('User', UserSchema, 'users')
+const Task = model('Task', TaskSchema, 'tasks')
+
+export { User, Task }

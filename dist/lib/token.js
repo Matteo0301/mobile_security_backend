@@ -13,9 +13,10 @@ exports.generateAccessToken = generateAccessToken;
 exports.authenticateToken = authenticateToken;
 exports.setSecret = setSecret;
 const jsonwebtoken_1 = require("jsonwebtoken");
+const mongoose_1 = require("./mongoose");
 let secret = "";
-function generateAccessToken(username) {
-    return (0, jsonwebtoken_1.sign)({ username: username }, secret, { expiresIn: '24h' });
+function generateAccessToken(username, id) {
+    return (0, jsonwebtoken_1.sign)({ username: username, id: id }, secret, { expiresIn: '24h' });
 }
 function setSecret(new_secret) {
     secret = new_secret;
@@ -24,33 +25,42 @@ function authenticateToken(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
         let token;
         const header = req.headers['authorization'];
+        console.log(req.headers);
+        console.log('hello');
         if (header && typeof header === 'string') {
             if (header.startsWith('Bearer ')) {
                 token = header.split(' ')[1];
             }
             else {
+                console.log('wring header format');
                 res.sendStatus(401);
                 return;
             }
         }
         else {
+            console.log('wrong header type');
+            console.log(header);
+            console.log(typeof header);
             res.sendStatus(401);
             return;
         }
         if (token == null) {
-            return res.sendStatus(401);
+            console.log('null token');
+            res.sendStatus(401);
+            return;
         }
         (0, jsonwebtoken_1.verify)(token, secret, (err, user) => __awaiter(this, void 0, void 0, function* () {
             if (err) {
-                return res.sendStatus(403);
+                res.status(403).send();
+                return;
             }
             // Check if user is in the database
-            /* const db_user = await getUser(user.username)
+            const db_user = yield (0, mongoose_1.getUser)(user.username);
             if (!db_user) {
-                Logger.debug('Authentication failed: ' + user.username + ' is not in the database')
-                return res.sendStatus(403)
-            } */
+                return res.status(403).send();
+            }
             req.user = user.username;
+            req.id = user.id;
             next();
         }));
     });
